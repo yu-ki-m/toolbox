@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Template Pad</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f5f5f5;
+      color: #222;
+    }
+
+    #app {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .shell {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 16px;
+    }
+
+    .panel {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .title-row,
+    .action-row,
+    .template-row,
+    .result-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .title-row {
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .sidebar-title,
+    .main-title {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .template-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .template-button {
+      width: 100%;
+      border: 1px solid #ddd;
+      background: #fff;
+      border-radius: 10px;
+      padding: 10px 12px;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .template-button.active {
+      border-color: #222;
+      background: #f0f0f0;
+    }
+
+    .template-button-name {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .template-button-meta {
+      display: block;
+      color: #666;
+      font-size: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .empty-text {
+      color: #666;
+      font-size: 14px;
+      margin: 0;
+    }
+
+    input,
+    textarea,
+    button {
+      font: inherit;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding: 10px 12px;
+      background: #fff;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    button {
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding: 10px 14px;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    button.primary {
+      background: #222;
+      color: #fff;
+      border-color: #222;
+    }
+
+    .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .field-block {
+      border: 1px solid #e2e2e2;
+      border-radius: 10px;
+      padding: 12px;
+      background: #fafafa;
+    }
+
+    .field-name {
+      margin: 0 0 8px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .section-subtitle {
+      margin: 0;
+      color: #666;
+      font-size: 12px;
+    }
+
+    pre {
+      margin: 0;
+      padding: 12px;
+      border-radius: 10px;
+      background: #111;
+      color: #fff;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .message {
+      font-size: 13px;
+      color: #555;
+      min-height: 20px;
+    }
+
+    .danger {
+      color: #b42318;
+    }
+
+    @media (max-width: 860px) {
+      .shell {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="shell">
+      <aside class="panel">
+        <div class="title-row">
+          <h1 class="sidebar-title">テンプレート</h1>
+          <button @click="createTemplate">新規</button>
+        </div>
+
+        <div class="stack">
+          <input v-model.trim="searchText" type="text" placeholder="検索" />
+
+          <div v-if="filteredTemplates.length > 0" class="template-list">
+            <button
+              v-for="template in filteredTemplates"
+              :key="template.id"
+              class="template-button"
+              :class="{ active: template.id === selectedId }"
+              @click="selectTemplate(template.id)"
+            >
+              <span class="template-button-name">{{ template.name || '名称未設定' }}</span>
+              <span class="template-button-meta">{{ oneLine(template.template) || '本文なし' }}</span>
+            </button>
+          </div>
+
+          <p v-else class="empty-text">テンプレートがありません。</p>
+        </div>
+      </aside>
+
+      <main class="panel">
+        <div class="title-row">
+          <h2 class="main-title">Template Pad</h2>
+          <div class="action-row">
+            <button @click="saveTemplate">保存</button>
+            <button @click="deleteTemplate" :disabled="!selectedTemplate">削除</button>
+          </div>
+        </div>
+
+        <div v-if="selectedTemplate" class="stack">
+          <div class="template-row">
+            <input v-model="selectedTemplate.name" type="text" placeholder="テンプレート名" />
+          </div>
+
+          <div>
+            <p class="section-title">テンプレート本文</p>
+            <p class="section-subtitle">{{name}} の形式で変数を埋め込みます。</p>
+            <textarea v-model="selectedTemplate.template" rows="8" placeholder="例: ssh {{user}}@{{host}}"></textarea>
+          </div>
+
+          <div>
+            <div class="title-row" style="margin-bottom: 8px;">
+              <div>
+                <p class="section-title">入力欄</p>
+                <p class="section-subtitle">本文から {{variable}} を自動抽出します。</p>
+              </div>
+              <button @click="syncFieldsFromTemplate">再読込</button>
+            </div>
+
+            <div v-if="fields.length > 0" class="stack">
+              <div v-for="field in fields" :key="field" class="field-block">
+                <p class="field-name">{{ field }}</p>
+                <input v-model="fieldValues[field]" type="text" :placeholder="field" />
+              </div>
+            </div>
+            <p v-else class="empty-text">変数がありません。</p>
+          </div>
+
+          <div>
+            <div class="title-row" style="margin-bottom: 8px;">
+              <div>
+                <p class="section-title">生成結果</p>
+              </div>
+              <div class="result-row">
+                <button class="primary" @click="copyResult">コピー</button>
+                <button @click="clearValues">入力クリア</button>
+              </div>
+            </div>
+            <pre>{{ renderedText }}</pre>
+          </div>
+
+          <div class="message" :class="{ danger: isError }">{{ message }}</div>
+        </div>
+
+        <div v-else>
+          <p class="empty-text">左の「新規」を押すと始められます。</p>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const { createApp } = Vue
+
+    const STORAGE_KEY = 'template-pad-v1'
+
+    createApp({
+      data() {
+        return {
+          templates: [],
+          selectedId: null,
+          searchText: '',
+          fieldValues: {},
+          message: '',
+          isError: false,
+        }
+      },
+
+      computed: {
+        filteredTemplates() {
+          const keyword = this.searchText.toLowerCase()
+
+          if (!keyword) {
+            return this.templates
+          }
+
+          return this.templates.filter((template) => {
+            return [template.name, template.template]
+              .join(' ')
+              .toLowerCase()
+              .includes(keyword)
+          })
+        },
+
+        selectedTemplate() {
+          return this.templates.find((template) => template.id === this.selectedId) || null
+        },
+
+        fields() {
+          if (!this.selectedTemplate) {
+            return []
+          }
+
+          const matches = this.selectedTemplate.template.match(/\{\{\s*[a-zA-Z0-9_\-]+\s*\}\}/g) || []
+          const names = matches.map((token) => token.replace(/[{}\s]/g, ''))
+          return [...new Set(names)]
+        },
+
+        renderedText() {
+          if (!this.selectedTemplate) {
+            return ''
+          }
+
+          return this.selectedTemplate.template.replace(/\{\{\s*([a-zA-Z0-9_\-]+)\s*\}\}/g, (_, key) => {
+            return this.fieldValues[key] ?? ''
+          })
+        },
+      },
+
+      watch: {
+        selectedId() {
+          this.rebuildFieldValues()
+          this.message = ''
+          this.isError = false
+        },
+
+        fields() {
+          this.rebuildFieldValues()
+        },
+      },
+
+      mounted() {
+        this.loadTemplates()
+      },
+
+      methods: {
+        oneLine(text) {
+          return String(text || '').replace(/\s+/g, ' ').trim()
+        },
+
+        loadTemplates() {
+          try {
+            const raw = localStorage.getItem(STORAGE_KEY)
+            const saved = raw ? JSON.parse(raw) : null
+
+            if (Array.isArray(saved) && saved.length > 0) {
+              this.templates = saved
+              this.selectedId = saved[0].id
+              return
+            }
+          } catch (error) {
+            console.error(error)
+          }
+
+          const initial = {
+            id: crypto.randomUUID(),
+            name: 'サンプル',
+            template: 'ssh {{user}}@{{host}}',
+          }
+
+          this.templates = [initial]
+          this.selectedId = initial.id
+          this.persistTemplates()
+        },
+
+        persistTemplates() {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(this.templates))
+        },
+
+        createTemplate() {
+          const template = {
+            id: crypto.randomUUID(),
+            name: '新しいテンプレート',
+            template: '',
+          }
+
+          this.templates.unshift(template)
+          this.selectedId = template.id
+          this.persistTemplates()
+          this.message = 'テンプレートを追加しました。'
+          this.isError = false
+        },
+
+        selectTemplate(id) {
+          this.selectedId = id
+        },
+
+        saveTemplate() {
+          if (!this.selectedTemplate) {
+            return
+          }
+
+          this.persistTemplates()
+          this.message = 'localStorage に保存しました。'
+          this.isError = false
+        },
+
+        deleteTemplate() {
+          if (!this.selectedTemplate) {
+            return
+          }
+
+          const index = this.templates.findIndex((template) => template.id === this.selectedId)
+          if (index === -1) {
+            return
+          }
+
+          this.templates.splice(index, 1)
+
+          if (this.templates.length > 0) {
+            this.selectedId = this.templates[0].id
+          } else {
+            this.selectedId = null
+          }
+
+          this.persistTemplates()
+          this.message = 'テンプレートを削除しました。'
+          this.isError = false
+        },
+
+        syncFieldsFromTemplate() {
+          this.rebuildFieldValues()
+          this.message = '変数一覧を再読込しました。'
+          this.isError = false
+        },
+
+        rebuildFieldValues() {
+          const nextValues = {}
+
+          for (const field of this.fields) {
+            nextValues[field] = this.fieldValues[field] ?? ''
+          }
+
+          this.fieldValues = nextValues
+        },
+
+        clearValues() {
+          const cleared = {}
+
+          for (const field of this.fields) {
+            cleared[field] = ''
+          }
+
+          this.fieldValues = cleared
+          this.message = '入力値をクリアしました。'
+          this.isError = false
+        },
+
+        async copyResult() {
+          try {
+            await navigator.clipboard.writeText(this.renderedText)
+            this.message = '生成結果をコピーしました。'
+            this.isError = false
+          } catch (error) {
+            console.error(error)
+            this.message = 'コピーに失敗しました。'
+            this.isError = true
+          }
+        },
+      },
+    }).mount('#app')
+  </script>
+</body>
+</html>
