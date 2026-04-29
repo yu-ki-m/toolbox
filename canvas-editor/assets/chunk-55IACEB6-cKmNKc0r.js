@@ -1,1 +1,0 @@
-import{S as e}from"./workspace-vendors-7Pdnjp6x.js";import{n as t}from"./src-BAwgvj-U.js";var n=t((t,n)=>{let r;return n===`sandbox`&&(r=e(`#i`+t)),e(n===`sandbox`?r.nodes()[0].contentDocument.body:`body`).select(`[id="${t}"]`)},`getDiagramElement`);export{n as t};
