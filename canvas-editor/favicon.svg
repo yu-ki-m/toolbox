@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="backCardGrad" x1="72" y1="122" x2="236" y2="380" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#596678"/>
+      <stop offset="1" stop-color="#434F5F"/>
+    </linearGradient>
+
+    <!-- 表の大きい四角のベース面 -->
+    <linearGradient id="frontCardGrad" x1="146" y1="100" x2="438" y2="404" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#3C4757"/>
+      <stop offset="0.55" stop-color="#2F3947"/>
+      <stop offset="1" stop-color="#252E3A"/>
+    </linearGradient>
+
+    <!-- 表の大きい四角の外周 -->
+    <linearGradient id="frontStroke" x1="146" y1="100" x2="438" y2="404" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#728194"/>
+      <stop offset="1" stop-color="#455264"/>
+    </linearGradient>
+
+    <!-- 表の大きい四角の内側輪郭 -->
+    <linearGradient id="frontInnerStroke" x1="162" y1="116" x2="422" y2="388" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#94A2B3" stop-opacity="0.20"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.04"/>
+    </linearGradient>
+
+    <!-- 左上にだけ入れる弱い光 -->
+    <radialGradient id="frontGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse"
+      gradientTransform="translate(220 160) rotate(45) scale(170 150)">
+      <stop offset="0" stop-color="#7F91A6" stop-opacity="0.20"/>
+      <stop offset="0.45" stop-color="#6D7F93" stop-opacity="0.10"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- 右下の締まり -->
+    <radialGradient id="frontShade" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse"
+      gradientTransform="translate(392 340) rotate(225) scale(180 160)">
+      <stop offset="0" stop-color="#111826" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="noteGrad" x1="194" y1="154" x2="276" y2="236" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#5F7EA0"/>
+      <stop offset="1" stop-color="#3F5F80"/>
+    </linearGradient>
+
+    <linearGradient id="sidebarGrad" x1="98" y1="148" x2="120" y2="308" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#202A35"/>
+      <stop offset="1" stop-color="#121A23"/>
+    </linearGradient>
+
+    <linearGradient id="pillGrad" x1="380" y1="350" x2="402" y2="360" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#7F90A3"/>
+      <stop offset="1" stop-color="#5D6D80"/>
+    </linearGradient>
+
+    <filter id="cardShadowBack" x="32" y="82" width="244" height="338" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#000000" flood-opacity="0.18"/>
+    </filter>
+
+    <filter id="cardShadowFront" x="106" y="60" width="372" height="384" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#000000" flood-opacity="0.22"/>
+    </filter>
+
+    <filter id="noteShadow" x="174" y="134" width="122" height="122" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#000000" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#cardShadowBack)">
+    <rect
+      x="72" y="122" width="164" height="258" rx="24"
+      fill="url(#backCardGrad)"
+      stroke="#6D7B8B"
+      stroke-width="2"/>
+    <rect
+      x="98" y="148" width="22" height="160" rx="11"
+      fill="url(#sidebarGrad)"/>
+  </g>
+
+  <g filter="url(#cardShadowFront)">
+    <!-- ベース -->
+    <rect
+      x="146" y="100" width="292" height="304" rx="34"
+      fill="url(#frontCardGrad)"
+      stroke="url(#frontStroke)"
+      stroke-width="2.5"/>
+
+    <!-- 面の光 -->
+    <rect
+      x="146" y="100" width="292" height="304" rx="34"
+      fill="url(#frontGlow)"/>
+
+    <!-- 右下の締まり -->
+    <rect
+      x="146" y="100" width="292" height="304" rx="34"
+      fill="url(#frontShade)"/>
+
+    <!-- 内側の細い輪郭 -->
+    <rect
+      x="157" y="111" width="270" height="282" rx="24"
+      fill="none"
+      stroke="url(#frontInnerStroke)"
+      stroke-width="1.5"/>
+  </g>
+
+  <g filter="url(#noteShadow)">
+    <rect
+      x="194" y="154" width="82" height="82" rx="18"
+      fill="url(#noteGrad)"/>
+  </g>
+
+  <rect
+    x="380" y="350" width="22" height="10" rx="5"
+    fill="url(#pillGrad)"/>
+</svg>
