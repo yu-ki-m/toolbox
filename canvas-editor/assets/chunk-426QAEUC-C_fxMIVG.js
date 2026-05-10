@@ -1,0 +1,1 @@
+import{w as e}from"./workspace-vendors-Cvxl1UIt.js";import{n as t}from"./src-xHMirTlI.js";import{b as n}from"./chunk-ICPOFSXX-BuF8gB67.js";var r=t(t=>{let{securityLevel:r}=n(),i=e(`body`);return r===`sandbox`&&(i=e((e(`#i${t}`).node()?.contentDocument??document).body)),i.select(`#${t}`)},`selectSvgElement`);export{r as t};
